@@ -10,3 +10,5 @@ else:
     print('creating a default configuration')
     config.create_conf(conf_file)
 
+print('pre-load complete, starting application')
+

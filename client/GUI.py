@@ -1,8 +1,6 @@
 from tkinter import ttk
 from tkinter import Tk
-from tkinter import Button
-from tkinter import Entry
-from tkinter import Label
+from tkinter import Button, Entry, Label, Canvas, Scrollbar, Frame, Text
 from tkinter import StringVar
 from tkinter import X
 from tkinter import BOTH
@@ -36,8 +34,32 @@ class gui:
         Self.message_entry.pack(fill=X,side="bottom")
         Self.message_entry.focus()
 
-        Self.chat = Label(Self.root, text='to configure')
-        Self.chat.pack(fill=BOTH, side="bottom")
+        label = Label(text='press <Escape> to quit')
+        label.pack()
+
+        canvas_frame = Frame(Self.root)
+        canvas_frame.pack(fill="both", expand=True)
+
+        scrollbar = Scrollbar(canvas_frame)
+        scrollbar.pack(side="right", fill="y")
+
+
+        Self.text_widget = Text(canvas_frame, wrap="word", height=10, width=40)
+        Self.text_widget.pack(side="left", fill="both", expand=True)
+
+
+        Self.text_widget.config(yscrollcommand=scrollbar.set)
+        scrollbar.config(command=Self.text_widget.yview)
+
+        long_text = ""
+        Self.text_widget.insert("1.0", long_text)
+
+
+        #Self.chat = Label(text_frame, text='to configure')
+        #Self.chat.pack()
+        #
+        #text_frame.update_idletasks()
+        #canvas.config(scrollregion=canvas.bbox("all"))
 
     
     def exit(Self, event=None):
@@ -45,7 +67,8 @@ class gui:
         Self.root.quit()
     
     def upd (Self, newStr : str):
-        Self.chat.config(text=newStr)
+        Self.text_widget.delete('1.0',"end")
+        Self.text_widget.insert("1.0", newStr)
 
 
 #  NOTE importanti:
@@ -61,9 +84,10 @@ def f (event=None):
         last.append(g.writing_message.get())
         strin = ''
         for i in range(len(last)):
-            strin += last[i]+ '\n'
+            strin += 'you: ' + last[i]+ '\n'
         g.upd(strin)
         g.message_entry.delete(0, END)
+        g.text_widget.see("end")
 
 
 g = gui(f)

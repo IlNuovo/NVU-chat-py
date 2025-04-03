@@ -3,9 +3,6 @@ from tkinter import Tk
 from tkinter import Button, Entry, Label, Canvas, Scrollbar, Frame, Text
 from tkinter import StringVar
 from tkinter import X
-from tkinter import BOTH
-
-from tkinter import END
 
 from typing import Callable
 
@@ -76,23 +73,23 @@ class gui:
 # Puoi chiudere la finestra con <Escape>
 #
 #   ESEMPIO:
-last = []
-def f (event=None):
-    if not(g.writing_message.get() == ''):
-        print(g.writing_message.get())
-        global last 
-        last.append(g.writing_message.get())
-        strin = ''
-        for i in range(len(last)):
-            strin += 'you: ' + last[i]+ '\n'
-        g.upd(strin)
-        g.message_entry.delete(0, END)
-        g.text_widget.see("end")
-
-
-g = gui(f)
-
-
-g.root.mainloop()
+#last = []
+#def f (event=None):
+#    if not(g.writing_message.get() == ''):
+#        print(g.writing_message.get())
+#        global last 
+#        last.append(g.writing_message.get())
+#        strin = ''
+#        for i in range(len(last)):
+#            strin += 'you: ' + last[i]+ '\n'
+#        g.upd(strin)
+#        g.message_entry.delete(0, END)
+#        g.text_widget.see("end")
+#
+#
+#g = gui(f)
+#
+#
+#g.root.mainloop()
 #
 #print ('last message was:', last)

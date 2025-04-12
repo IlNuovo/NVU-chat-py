@@ -36,6 +36,7 @@ class Port (Thread):
         Self.start()
 
     def run (Self):
+        Self.last = ""
         if Self.listen:
             Self.body.bind((socket.gethostname(), Self.port))
             Self.body.listen()
@@ -45,6 +46,8 @@ class Port (Thread):
                 msg = Self.body.recv(1024)
                 msg = msg.decode("utf-8")
                 print (msg)
+                if msg != "":
+                    Self.last = msg
             
         
         

@@ -15,9 +15,9 @@ else:
 print('pre-load complete, starting application')
 
 last = []
-def f (event=None):
+def function (event=None):
     if not(g.writing_message.get() == ''):
-        print(g.writing_message.get())
+        #print(g.writing_message.get())
         global last 
         last.append(g.writing_message.get())
         strin = ''
@@ -28,7 +28,7 @@ def f (event=None):
         g.text_widget.see("end")
 
 
-g = gui(f)
+g = gui(function)
 
 
 g.root.mainloop()

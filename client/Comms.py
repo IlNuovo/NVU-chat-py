@@ -1,10 +1,11 @@
 from threading import Thread
 import socket
+from Archive import getlastsend, getlastrecv
 
 class MultiService:
-    def __init__ (Self, s_port : int, l_port : int, net = "0.0.0.0"):
+    def __init__ (Self, s_port : int, l_port : int, srv : str, net = "0.0.0.0"):
         Self.listener = Port(ip_bind=net, port=l_port)
-        Self.sender = Port(ip_bind=net, port=s_port, listen=False)
+        Self.sender = Port(ip_bind=srv, port=s_port, listen=False)
         pass
 
 
@@ -29,9 +30,22 @@ class Port (Thread):
                 msg = Self.body.recv(1024)
                 msg = msg.decode("utf-8")
                 print (msg)
+                if msg != "\'\'keep alive\'\'":
+                    Self.last = msg
+            
+            Self.body.close()
         else:
-            pass
+            host = Self.ip_bind
+            print((host, Self.port))
+            Self.body.connect((host, Self.port))
+            while Self.running:
+                if getlastsend() == None:
+                    Self.body.sendall(b"\'\'keep alive\'\'")
+                else:
+                    Self.body.sendall(getlastsend().encode("utf-8"))
+
+            Self.body.close()
 
 
-th = MultiService (8000, 8001, "0.0.0.0")
+th = MultiService (8000, 8001, "192.168.1.13")
 print ("na")

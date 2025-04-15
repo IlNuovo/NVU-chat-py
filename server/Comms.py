@@ -4,7 +4,7 @@ import socket
 
 
 class MultiService (Thread):
-    def __init__ (Self, start : int, end : int, mode : int, network : str):
+    def __init__ (Self, start : int, end : int, network : str, mode = 0):
         super().__init__(None, "gestion", None,None, None)
         if start < end:
             Self.start_port = start
@@ -15,6 +15,7 @@ class MultiService (Thread):
         Self.mode = mode
         Self.bind_net = network
         Self.ports = []
+        Self.run()
 
         
     
@@ -37,28 +38,32 @@ class Port (Thread):
 
     def run (Self):
         Self.last = ""
-        if Self.listen:
-            Self.body.bind((socket.gethostname(), Self.port))
-            Self.body.listen()
-            client, cl_ip = Self.body.accept()
-            print (f"added {Self.body}")
-            while Self.running:
-                msg = Self.body.recv(1024)
-                msg = msg.decode("utf-8")
-                print (msg)
-                if msg != "":
-                    Self.last = msg
+        Self.body.bind((socket.gethostname(), Self.port))
+        Self.body.listen()
+        client, cl_ip = Self.body.accept()
+        print(f"connected to {client} with address {cl_ip}")
+        print (f"added {Self.body}")
+        while Self.running:
+            msg = Self.body.recv(1024)
+            msg = msg.decode("utf-8")
+            print (msg)
+            if msg != "":
+                Self.last = msg
+                
+            if not(msg == b''):
+                Self.body.sendall("keep alive")
+            else:
+                break
+                Self.body.listen()
+                client, cl_ip = Self.body.accept()
+            
             
         
         
 
 
-trial = MultiService(6000, 6002, 0, "0.0.0.0")
+trial = MultiService(6000, 6100, "0.0.0.0")
 
 
 
-trial.start()
-trial.join()
 
-
-print(0)

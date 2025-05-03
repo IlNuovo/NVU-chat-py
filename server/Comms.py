@@ -38,23 +38,26 @@ class Port (Thread):
 
     def run (Self):
         Self.last = ""
-        Self.body.bind((socket.gethostname(), Self.port))
-        Self.body.listen()
+        #Self.body.bind((socket.gethostbyname(socket.gethostname()), Self.port))
+        Self.body.bind(('localhost', Self.port))
+
+        #print(f"binded socket at ip {socket.gethostbyname(socket.gethostname())} and port {Self.port}")
+        Self.body.listen(10)
         client, cl_ip = Self.body.accept()
         print(f"connected to {client} with address {cl_ip}")
         print (f"added {Self.body}")
         while Self.running:
-            msg = Self.body.recv(1024)
+            msg = client.recv(1024)
             msg = msg.decode("utf-8")
             print (msg)
             if msg != "":
                 Self.last = msg
                 
             if not(msg == b''):
-                Self.body.sendall("keep alive")
+                client.sendall("keep alive".encode('utf-8'))
             else:
                 break
-                Self.body.listen()
+                Self.body.accept()
                 client, cl_ip = Self.body.accept()
             
             
@@ -62,7 +65,7 @@ class Port (Thread):
         
 
 
-trial = MultiService(6000, 6100, "0.0.0.0")
+trial = MultiService(6000, 6100, "localhost")
 
 
 

@@ -1,6 +1,10 @@
 from threading import Thread
 import socket
 from Archive import getlastsend, getlastrecv
+from time import sleep
+import message_builder
+
+
 
 class MultiService:
     def __init__ (Self, s_port : int, srv : str, net = "0.0.0.0"):
@@ -19,19 +23,21 @@ class Port (Thread):
         Self.start()
 
     def run (Self):
+        Self.builder = message_builder.Structurer()
         Self.body.connect((Self.ip_bind, Self.port))
         print (f"added {Self.body}")
-        Self.body.sendall("connect request -- keep alive")
+        sleep(1)
+        Self.body.sendall("connect request -- keep alive".encode('utf-8'))
         while Self.running:
             msg = Self.body.recv(1024)
             msg = msg.decode("utf-8")
             print (msg)
             if msg != "\'\'keep alive\'\'":
                 Self.last = msg
-            Self.body.sendall("\'\'keep alive\'\'")
+            Self.body.sendall("\'\'keep alive\'\'".encode('utf-8'))
         
         Self.body.close()
 
 
-th = MultiService (6000, "127.0.0.1")
+th = MultiService (6001, "localhost")
 print ("na")

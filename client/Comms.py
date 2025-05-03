@@ -1,9 +1,7 @@
 from threading import Thread
 import socket
-from Archive import getlastsend, getlastrecv
 from time import sleep
-import message_builder
-
+from Builder import Structurer
 
 
 class MultiService:
@@ -23,7 +21,8 @@ class Port (Thread):
         Self.start()
 
     def run (Self):
-        Self.builder = message_builder.Structurer()
+        builder = Structurer()
+
         Self.body.connect((Self.ip_bind, Self.port))
         print (f"added {Self.body}")
         sleep(1)

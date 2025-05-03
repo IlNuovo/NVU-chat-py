@@ -1,10 +1,13 @@
 from threading import Thread
 import socket
+from server.Builder import Structurer
+
+
 
 
 
 class MultiService (Thread):
-    def __init__ (Self, start : int, end : int, network : str, mode = 0):
+    def __init__ (Self, start : int, end : int, network : str, mode = 0, localhost = False):
         super().__init__(None, "gestion", None,None, None)
         if start < end:
             Self.start_port = start
@@ -15,6 +18,7 @@ class MultiService (Thread):
         Self.mode = mode
         Self.bind_net = network
         Self.ports = []
+        Self.localhost = localhost
         Self.run()
 
         
@@ -22,24 +26,31 @@ class MultiService (Thread):
     def run (Self):
         for i in range(Self.end_port-Self.start_port):
             print (f"adding port {Self.start_port + i} to ports")
-            Self.ports.append(Port(ip_bind=Self.bind_net, port=Self.start_port+i))
+            Self.ports.append(Port(ip_bind=Self.bind_net, port=Self.start_port+i, localhost=Self.localhost, father=Self))
         pass
         print (f"service start whith {Self.end_port-Self.start_port} ports")
 
 class Port (Thread):
-    def __init__(Self, group = None, target = None, name = None, args = ..., kwargs = None, *, daemon = None, listen = True, ip_bind = "0.0.0.0", port : int):
+    def __init__(Self, group = None, target = None, name = None, args = ..., kwargs = None, *, daemon = None, listen = True,localhost = False, ip_bind = "0.0.0.0", port : int, father):
         super().__init__(group, target, name, args, kwargs, daemon=daemon)
         Self.body = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         Self.ip_bind = ip_bind
         Self.listen = listen
         Self.port = port
         Self.running = True
+        Self.localhost = localhost
+        Self.father = father
         Self.start()
 
     def run (Self):
+        builder = Structurer()
+
+
         Self.last = ""
-        #Self.body.bind((socket.gethostbyname(socket.gethostname()), Self.port))
-        Self.body.bind(('localhost', Self.port))
+        if Self.localhost:
+            Self.body.bind(('localhost', Self.port))
+        else:
+            Self.body.bind((socket.gethostbyname(socket.gethostname()), Self.port))
 
         #print(f"binded socket at ip {socket.gethostbyname(socket.gethostname())} and port {Self.port}")
         Self.body.listen(10)
@@ -56,7 +67,6 @@ class Port (Thread):
             if not(msg == b''):
                 client.sendall("keep alive".encode('utf-8'))
             else:
-                break
                 Self.body.accept()
                 client, cl_ip = Self.body.accept()
             
@@ -65,7 +75,7 @@ class Port (Thread):
         
 
 
-trial = MultiService(6000, 6100, "localhost")
+trial = MultiService(6000, 6100, "localhost", localhost=True)
 
 
 

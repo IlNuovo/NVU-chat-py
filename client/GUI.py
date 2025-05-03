@@ -60,7 +60,7 @@ class gui:
 
     
     def exit(Self, event=None):
-        # Esci dalla modalità a schermo intero
+        # Exit full-screen mode
         Self.root.quit()
     
     def upd (Self, newStr : str):
@@ -68,11 +68,11 @@ class gui:
         Self.text_widget.insert("1.0", newStr)
 
 
-#  NOTE importanti:
+#  important NOTES:
 #
-# Puoi chiudere la finestra con <Escape>
+# You may close the window with <Escape>
 #
-#   ESEMPIO:
+#   EXAMPLE:
 #last = []
 #def f (event=None):
 #    if not(g.writing_message.get() == ''):

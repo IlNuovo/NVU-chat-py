@@ -21,22 +21,27 @@ class Port (Thread):
         Self.start()
 
     def run (Self):
+        host = socket.gethostbyname(socket.gethostname())
         builder = Structurer()
 
         Self.body.connect((Self.ip_bind, Self.port))
         print (f"added {Self.body}")
         sleep(1)
-        Self.body.sendall("connect request -- keep alive".encode('utf-8'))
+        Self.body.sendall(builder.build(ip=host, message=builder.key, keepalive=True, encripted=False, encoding='utf-8'))
         while Self.running:
             msg = Self.body.recv(1024)
             msg = msg.decode("utf-8")
             print (msg)
             if msg != "\'\'keep alive\'\'":
                 Self.last = msg
-            Self.body.sendall("\'\'keep alive\'\'".encode('utf-8'))
+            Self.body.sendall(builder.build(ip=host,encripted=False))
         
+        Self.body.sendall(builder.build(ip=host,keepalive=False))
         Self.body.close()
 
 
-th = MultiService (6001, "localhost")
+th = MultiService (6000, "localhost")
 print ("na")
+
+sleep(10)
+th.sender.running = False

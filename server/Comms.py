@@ -1,6 +1,6 @@
 from threading import Thread
 import socket
-from server.Builder import Structurer
+from Builder import Structurer
 
 
 
@@ -20,6 +20,11 @@ class MultiService (Thread):
         Self.ports = []
         Self.localhost = localhost
         Self.run()
+    
+    def reply (Self, message : str, excluded : int):
+        for i in Self.ports:
+            if not (i.port == excluded):
+                i.addSend('message')
 
         
     
@@ -40,7 +45,16 @@ class Port (Thread):
         Self.running = True
         Self.localhost = localhost
         Self.father = father
+        Self.send = []
         Self.start()
+
+    def addSend (Self, added):
+        Self.send.append(added)
+    def getSend(Self) -> str:
+        if len(Self.send) > 0:
+            return Self.send.pop(0)
+        else:
+            return ""
 
     def run (Self):
         builder = Structurer()
@@ -54,20 +68,25 @@ class Port (Thread):
 
         #print(f"binded socket at ip {socket.gethostbyname(socket.gethostname())} and port {Self.port}")
         Self.body.listen(10)
+        new_comm = True
         client, cl_ip = Self.body.accept()
         print(f"connected to {client} with address {cl_ip}")
         print (f"added {Self.body}")
         while Self.running:
             msg = client.recv(1024)
+            if new_comm:
+                builder.key = msg
+                new_comm = False
             msg = msg.decode("utf-8")
-            print (msg)
-            if msg != "":
-                Self.last = msg
+            received = builder.unpack(msg, encripted=False)
+            if not(received['message'].strip() == ''):
+                Self.father.reply(received['message'], Self.port)
+                print('message:',received['message'])
                 
-            if not(msg == b''):
-                client.sendall("keep alive".encode('utf-8'))
+            if not(msg == b'') and received['keepalive']:
+                client.sendall(builder.build(encripted=False, message=Self.getSend()))
             else:
-                Self.body.accept()
+                new_comm = True
                 client, cl_ip = Self.body.accept()
             
             

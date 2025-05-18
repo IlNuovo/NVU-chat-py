@@ -58,7 +58,7 @@ g = gui(function)
 g.root.after(0, g.mark_gui_ready)
 lock = threading.Lock()
 
-conn = CComms.MultiService(6000, srv='localhost', link = receive_and_show)
+conn = CComms.MultiService(6000, srv=data['server'], link = receive_and_show)
 last = conn.sender.recv_log
 
 

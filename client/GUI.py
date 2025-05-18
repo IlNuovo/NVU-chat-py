@@ -12,12 +12,17 @@ class gui:
     def nothing ():
         pass
 
+
+    def mark_gui_ready(Self):
+        Self.gui_ready = True
+        print("GUI pronta!")
     
     def __init__ (Self, send_f : Callable = nothing):
+        Self.gui_ready = False
         Self.root = Tk()
         Self.root.title('NVU chat (python version)')
         Self.root.attributes('-fullscreen', True)
-        Self.root.bind('<Escape>', Self.exit)
+        Self.root.bind('<Escape>', Self.root.quit)
         Self.return_function = send_f
         Self.root.bind('<Return>', send_f)
 
@@ -31,7 +36,7 @@ class gui:
         Self.message_entry.pack(fill=X,side="bottom")
         Self.message_entry.focus()
 
-        label = Label(text='press <Escape> to quit')
+        label = Button(text='press here to quit',command=Self.root.quit)
         label.pack()
 
         canvas_frame = Frame(Self.root)
@@ -66,6 +71,7 @@ class gui:
     def upd (Self, newStr : str):
         Self.text_widget.delete('1.0',"end")
         Self.text_widget.insert("1.0", newStr)
+        Self.root.update_idletasks()
 
 
 #  important NOTES:

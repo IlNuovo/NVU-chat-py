@@ -4,9 +4,12 @@ from time import sleep
 from Builder import Structurer
 
 
+
 class MultiService:
-    def __init__ (Self, s_port : int, srv : str):
-        Self.sender = Port(ip_bind=srv, port=s_port)
+    def __init__ (Self, s_port : int, srv : str, link):
+        Self.sender = Port(ip_bind=srv, port=s_port, link=link)
+        if Self.sender == -1:
+            return None
         pass
     def send_msg (Self, message):
         Self.sender.addSend(message)
@@ -14,7 +17,7 @@ class MultiService:
 
 
 class Port (Thread):
-    def __init__(Self, group = None, target = None, name = None, args = ..., kwargs = None, *, daemon = None, ip_bind = "0.0.0.0", port : int):
+    def __init__(Self, group = None, target = None, name = None, args = ..., kwargs = None, *, daemon = None, ip_bind = "0.0.0.0", port : int, link):
         super().__init__(group, target, name, args, kwargs, daemon=daemon)
         Self.body = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         Self.ip_bind = ip_bind
@@ -22,6 +25,7 @@ class Port (Thread):
         Self.running = True
         Self.send = []
         Self.recv_log = []
+        Self.link = link
         Self.start()
 
     def run (Self):
@@ -31,7 +35,7 @@ class Port (Thread):
             Self.body.connect((Self.ip_bind, Self.port))
         except:
             print('connection failed')
-            return
+            return -1
         print (f"added {Self.body}")
         sleep(1)
         Self.body.sendall(builder.build(ip=host, message=builder.key, keepalive=True, encripted=False, encoding='utf-8'))
@@ -43,6 +47,7 @@ class Port (Thread):
             if not(received['message'].strip() == ''):
                 print ('message: ', received["message"])
                 Self.recv_log.append(received["message"])
+                Self.link(received["message"])
             
             tmp = builder.build(ip=host,encripted=False, message=Self.getSend())
             Self.body.sendall(tmp)

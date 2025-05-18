@@ -72,25 +72,32 @@ class Port (Thread):
         print(f"connected to {client} with address {cl_ip}")
         print (f"added {Self.body}")
         while Self.running:
-            msg = client.recv(1024)
-            
-            msg = msg.decode("utf-8")
-            received = builder.unpack(msg, encripted=False)
-            if not(received['message'].strip() == '' ):
-                if not(new_comm):
-                    father.reply(received['message'], Self.port)
-                    print('message:',received['message'])
+            try:
+                msg = client.recv(1024)
+
+                msg = msg.decode("utf-8")
+                received = builder.unpack(msg, encripted=False)
+                if not(received['message'].strip() == '' ):
+                    if not(new_comm):
+                        father.reply(received['message'], Self.port)
+                        print('message:',received['message'])
+                    else:
+                        print('connected:',received['sender'])
+                if new_comm:
+                    builder.key = received['message'].encode('utf-8')
+                    new_comm = False
+
+                if not(msg == b'') and received['keepalive']:
+                    client.sendall(builder.build(encripted=False, message=Self.getSend()))
                 else:
-                    print('connected:',received['sender'])
-            if new_comm:
-                builder.key = received['message'].encode('utf-8')
-                new_comm = False
-                
-            if not(msg == b'') and received['keepalive']:
-                client.sendall(builder.build(encripted=False, message=Self.getSend()))
-            else:
-                new_comm = True
-                client, cl_ip = Self.body.accept()
+                    new_comm = True
+                    Self.body.listen(1)
+                    client, cl_ip = Self.body.accept()
+            except:
+                    new_comm = True
+                    Self.body.listen(1)
+                    client, cl_ip = Self.body.accept()
+
             
             
         

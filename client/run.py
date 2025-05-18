@@ -1,7 +1,46 @@
 from configure import Configurator
 from GUI import gui
 from tkinter import END
-import Comms
+import CComms as CComms
+import threading
+
+
+
+
+
+    
+
+def receive_and_show (new : str):
+    if g.gui_ready:
+        strin = ''
+        print(new)
+        lock.acquire()
+        last.append(new)
+        print(last.pop(-1))
+        for i in range(len(last)):
+            strin += last[i] + '\n'
+        lock.release()
+        g.root.after(0, lambda: g.upd(strin))
+    else:
+        lock.acquire()
+        last.append(new)
+        lock.release()
+
+
+def function (event=None):
+    if not(g.writing_message.get() == ''):
+        #print(g.writing_message.get())
+        global last, conn
+        conn.send_msg(g.writing_message.get())
+        strin = ''
+        lock.acquire()
+        last.append('  you: ' + g.writing_message.get())
+        for i in range(len(last)):
+            strin += last[i] + '\n'
+        lock.release()
+        g.upd(strin)
+        g.message_entry.delete(0, END)
+        g.text_widget.see("end")
 
 config = Configurator()
 conf_file = './conf.json'
@@ -15,23 +54,19 @@ else:
 
 print('pre-load complete, starting application')
 
-conn = Comms.MultiService(6000, srv='localhost')
-last = conn.sender.recv_log
-def function (event=None):
-    if not(g.writing_message.get() == ''):
-        #print(g.writing_message.get())
-        global last, conn
-        conn.send_msg(g.writing_message.get())
-        last.append(g.writing_message.get())
-        strin = ''
-        for i in range(len(last)):
-            strin += 'you: ' + last[i] + '\n'
-        g.upd(strin)
-        g.message_entry.delete(0, END)
-        g.text_widget.see("end")
-
-
 g = gui(function)
+g.root.after(0, g.mark_gui_ready)
+lock = threading.Lock()
+
+conn = CComms.MultiService(6000, srv='localhost', link = receive_and_show)
+last = conn.sender.recv_log
 
 
-g.root.mainloop()
+
+
+if conn:
+
+
+
+    g.root.mainloop()
+    conn.sender.running = False

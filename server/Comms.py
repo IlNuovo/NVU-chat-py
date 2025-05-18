@@ -24,19 +24,19 @@ class MultiService (Thread):
     def reply (Self, message : str, excluded : int):
         for i in Self.ports:
             if not (i.port == excluded):
-                i.addSend('message')
+                i.addSend(str(excluded)+ ' : ' + message)
 
         
     
     def run (Self):
         for i in range(Self.end_port-Self.start_port):
             print (f"adding port {Self.start_port + i} to ports")
-            Self.ports.append(Port(ip_bind=Self.bind_net, port=Self.start_port+i, localhost=Self.localhost, father=Self))
+            Self.ports.append(Port(ip_bind=Self.bind_net, port=Self.start_port+i, localhost=Self.localhost))
         pass
         print (f"service start whith {Self.end_port-Self.start_port} ports")
 
 class Port (Thread):
-    def __init__(Self, group = None, target = None, name = None, args = ..., kwargs = None, *, daemon = None, listen = True,localhost = False, ip_bind = "0.0.0.0", port : int, father):
+    def __init__(Self, group = None, target = None, name = None, args = ..., kwargs = None, *, daemon = None, listen = True,localhost = False, ip_bind = "0.0.0.0", port : int):
         super().__init__(group, target, name, args, kwargs, daemon=daemon)
         Self.body = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         Self.ip_bind = ip_bind
@@ -44,7 +44,6 @@ class Port (Thread):
         Self.port = port
         Self.running = True
         Self.localhost = localhost
-        Self.father = father
         Self.send = []
         Self.start()
 
@@ -58,7 +57,7 @@ class Port (Thread):
 
     def run (Self):
         builder = Structurer()
-
+        global father
 
         Self.last = ""
         if Self.localhost:
@@ -67,21 +66,25 @@ class Port (Thread):
             Self.body.bind((socket.gethostbyname(socket.gethostname()), Self.port))
 
         #print(f"binded socket at ip {socket.gethostbyname(socket.gethostname())} and port {Self.port}")
-        Self.body.listen(10)
+        Self.body.listen(1)
         new_comm = True
         client, cl_ip = Self.body.accept()
         print(f"connected to {client} with address {cl_ip}")
         print (f"added {Self.body}")
         while Self.running:
             msg = client.recv(1024)
-            if new_comm:
-                builder.key = msg
-                new_comm = False
+            
             msg = msg.decode("utf-8")
             received = builder.unpack(msg, encripted=False)
-            if not(received['message'].strip() == ''):
-                Self.father.reply(received['message'], Self.port)
-                print('message:',received['message'])
+            if not(received['message'].strip() == '' ):
+                if not(new_comm):
+                    father.reply(received['message'], Self.port)
+                    print('message:',received['message'])
+                else:
+                    print('connected:',received['sender'])
+            if new_comm:
+                builder.key = received['message'].encode('utf-8')
+                new_comm = False
                 
             if not(msg == b'') and received['keepalive']:
                 client.sendall(builder.build(encripted=False, message=Self.getSend()))
@@ -94,7 +97,7 @@ class Port (Thread):
         
 
 
-trial = MultiService(6000, 6100, "localhost", localhost=True)
+father = MultiService(6000, 6100, "localhost", localhost=True)
 
 
 

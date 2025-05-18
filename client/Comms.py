@@ -5,7 +5,7 @@ from Builder import Structurer
 
 
 class MultiService:
-    def __init__ (Self, s_port : int, srv : str, net = "0.0.0.0"):
+    def __init__ (Self, s_port : int, srv : str):
         Self.sender = Port(ip_bind=srv, port=s_port)
         pass
     def send_msg (Self, message):
@@ -40,12 +40,11 @@ class Port (Thread):
             msg = msg.decode("utf-8")
             received = builder.unpack(msg,encripted=False)
 
-            if not(received['message'] == ''):
-                #print (received["message"])
+            if not(received['message'].strip() == ''):
+                print ('message: ', received["message"])
                 Self.recv_log.append(received["message"])
             
             tmp = builder.build(ip=host,encripted=False, message=Self.getSend())
-            print(tmp)
             Self.body.sendall(tmp)
 
             if not (received['keepalive']) or msg == b'':
@@ -54,16 +53,28 @@ class Port (Thread):
         Self.body.close()
     def addSend (Self, added):
         Self.send.append(added)
-        print(Self.send)
     def getSend(Self) -> str:
         if len(Self.send) > 0:
             return Self.send.pop(0)
         else:
             return ""
 
-th = MultiService (6000, "localhost")
-print ("na")
 
-input()
-th.send_msg('hi there how are u?')
-th.sender.running = False
+#failure = True
+#port = 6000
+#while failure:
+#    try:
+#        print(f'connecting to server on port {port}')
+#        th = MultiService (port, "localhost")
+#        failure = False
+#    except:
+#        print(f'increased port to {port}')
+#        failure = True
+#        port += 1
+#print ("na")
+
+
+#th = MultiService (6002, "localhost")
+#th.send_msg(input())
+#th.send_msg(input())
+#th.sender.running = False

@@ -33,14 +33,14 @@ def function (event=None):
         global last, conn
         conn.send_msg(g.writing_message.get())
         strin = ''
-        lock.acquire()
-        last.append('  you: ' + g.writing_message.get())
-        for i in range(len(last)):
-            strin += last[i] + '\n'
-        lock.release()
-        g.upd(strin)
+        #lock.acquire()
+        #last.append('  you: ' + g.writing_message.get())
+        #for i in range(len(last)):
+        #    strin += last[i] + '\n'
+        #lock.release()
+        #g.upd(strin)
         g.message_entry.delete(0, END)
-        g.text_widget.see("end")
+        #g.text_widget.see("end")
 
 config = Configurator()
 conf_file = './conf.json'
@@ -58,7 +58,7 @@ g = gui(function)
 g.root.after(0, g.mark_gui_ready)
 lock = threading.Lock()
 
-conn = CComms.MultiService(6000, srv=data['server'], link = receive_and_show)
+conn = CComms.MultiService(data["port"], srv=data['server'], link = receive_and_show)
 last = conn.sender.recv_log
 
 

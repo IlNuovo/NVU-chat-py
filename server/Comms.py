@@ -23,7 +23,7 @@ class MultiService (Thread):
     
     def reply (Self, message : str, excluded : int):
         for i in Self.ports:
-            if not (i.port == excluded):
+            #if not (i.port == excluded):
                 i.addSend(str(excluded)+ ' : ' + message)
 
         
@@ -103,8 +103,9 @@ class Port (Thread):
         
         
 
-
-father = MultiService(6000, 6100, "localhost", localhost=True)
+st_port = int(input("selezionare prima porta: "))
+lst_port = int(input("selezionare ultima porta: "))
+father = MultiService(st_port, lst_port, "localhost", localhost=True)
 
 
 
